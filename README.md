@@ -1,7 +1,7 @@
-# Glassdoor Tech Job Market & Salary Analysis (Python & Pandas)
+# Glassdoor Tech Job Market & Salary Analysis (Python, Pandas, & Matplotlib)
 
 ## 📌 Project Overview
-This project focuses on end-to-end **Data Cleaning, Feature Engineering, and Exploratory Data Analysis (EDA)** using Python (`pandas` and `numpy`) on a real-world dataset of **956 tech job postings** scraped from Glassdoor. 
+This project focuses on end-to-end **Data Cleaning, Feature Engineering, Exploratory Data Analysis (EDA), and Data Visualization** using Python (`pandas`, `numpy`, and `matplotlib`) on a real-world dataset of **956 tech job postings** scraped from Glassdoor. 
 
 Raw web-scraped job data contains significant data quality issues—including duplicate job listings, text-heavy salary strings, inconsistent geographic formatting, and multi-format missing value placeholders (`-1`, `'Unknown'`, `'Unknown / Non-Applicable'`). This project transforms the raw dataset into an analysis-ready format to uncover compensation benchmarks across US states, core data roles, industry sectors, and company attributes.
 
@@ -9,28 +9,28 @@ Raw web-scraped job data contains significant data quality issues—including du
 
 ## 🛠️ Tech Stack & Tools
 * **Language:** Python 3
-* **Libraries:** `pandas`, `numpy`, Regular Expressions (`re`)
+* **Libraries:** `pandas`, `numpy`, `matplotlib`, Regular Expressions (`re`)
 * **Environment:** VS Code, Jupyter Notebook, Git/GitHub
 
 ---
 
 ## 🧹 Data Cleaning & Feature Engineering Pipeline
 
-Followed a structured **Inspect $\rightarrow$ Clean $\rightarrow$ Transform $\rightarrow$ Verify** workflow across all 15 raw columns:
+Followed a structured **Inspect -> Clean -> Transform -> Verify** workflow across all 15 raw columns:
 
 1. **Deduplication & Index Hygiene:**
    * Dropped the redundant `Unnamed: 0` CSV index column to expose true row-level duplicates.
    * Identified and removed **356 duplicate job postings** (~37.2% of the raw dataset), leaving **600 unique job listings**, and reset the DataFrame index (`drop=True`).
 
-2. **Salary Parsing & Numeric Casting (`Salary Estimate` $\rightarrow$ `Min Salary`, `Max Salary`, `Avg Salary`):**
+2. **Salary Parsing & Numeric Casting (`Salary Estimate` -> `Min Salary`, `Max Salary`, `Avg Salary`):**
    * Stripped non-numeric text and currency/unit symbols (e.g., `"$53K-$91K (Glassdoor est.)"`) using regex (`r'[^\d\-]'`).
    * Replaced `'-1'` missing-value placeholders (**214 raw rows / 133 unique rows**) with `np.nan`.
    * Split salary ranges into `Min Salary` and `Max Salary` using `.str.split('-', expand=True)`, cast both to `float64` via `pd.to_numeric()`, and engineered an **`Avg Salary`** target metric (in `$K`).
 
 3. **Company Name Cleaning (`Company Name`):**
-   * Removed trailing newline characters and attached rating numbers (e.g., `"Tecolote Research\n3.8"` $\rightarrow$ `"Tecolote Research"`) using `.str.split('\n').str[0]`.
+   * Removed trailing newline characters and attached rating numbers (e.g., `"Tecolote Research\n3.8"` -> `"Tecolote Research"`) using `.str.split('\n').str[0]`.
 
-4. **Geographic Standardization (`Location` & `Headquarters` $\rightarrow$ `Job State`, `HQ State`, `Same State`):**
+4. **Geographic Standardization (`Location` & `Headquarters` -> `Job State`, `HQ State`, `Same State`):**
    * Inspected 237 unique location strings, identifying edge cases including multi-comma entries (`"Santa Fe Springs, Los Angeles, CA"`) and unformatted full state/country names (`"Michigan"`, `"Maryland"`, `"Virginia"`, `"New Jersey"`, `"Oregon"`, `"United States"`).
    * Extracted state codes via reverse-index splitting (`.str.split(',').str[-1].str.strip()`), standardized full state names to 2-letter USPS abbreviations, and mapped country-level entries (`"United States"`) to `np.nan`.
    * Cleaned `Headquarters` by converting **7** `'-1'` entries to `np.nan`, extracted `HQ State` (preserving international headquarters), and engineered a binary **`Same State`** feature (`1` if the job is in the headquarters state, `0` if in a satellite office).
@@ -40,7 +40,7 @@ Followed a structured **Inspect $\rightarrow$ Clean $\rightarrow$ Transform $\ri
    * Engineered **`Company Age`** (`2026 - Founded`), yielding a median company age of **30 years** (mean: **49.7 years**).
    * Standardized missing values across all categorical features (`Size`, `Type of ownership`, `Industry`, `Sector`, `Revenue`, `Competitors`) by replacing `'-1'`, `'Unknown'`, and `'Unknown / Non-Applicable'` with `np.nan`.
 
-6. **Role Classification (`Job Title` $\rightarrow$ `Role Category`):**
+6. **Role Classification (`Job Title` -> `Role Category`):**
    * Categorized messy job titles into core data professions (**`Data Scientist`**, **`Data Engineer`**, **`Data Analyst`**, and **`Other`**) using case-insensitive keyword matching with `.loc[]` and `.str.contains()`.
 
 ---
@@ -68,7 +68,7 @@ Filtering out low-sample states (`Job_Count >= 5`) reveals that **California (`C
 ### 2. Compensation by Core Data Role
 **Data Scientists** represent the largest share of job postings and command the highest average pay, followed by **Data Engineers**:
 
-| Role Category | Total Jobs | Avg Salary ($K) | Min Salary ($K) \vert{} Max Salary ($K) |
+| Role Category | Total Jobs | Avg Salary ($K) | Min Salary ($K) | Max Salary ($K) |
 | :--- | :---: | :---: | :---: | :---: |
 | **Data Scientist** | 210 | **$116.6K** | $15.5K | $254.0K |
 | **Data Engineer** | 74 | **$103.5K** | $60.5K | $205.0K |
@@ -101,11 +101,11 @@ Filtering out low-sample states (`Job_Count >= 5`) reveals that **California (`C
 ---
 
 ## 📁 Repository Structure
-```text
-glassdoor-salary-analysis/
-├── data/
-│   ├── glassdoor_jobs.csv           # Raw dataset (956 rows, 15 columns)
-│   └── glassdoor_jobs_cleaned.csv   # Cleaned dataset (600 unique rows, 20 columns)
-├── notebooks/
-│   └── tech_salary_analysis.ipynb   # Full cleaning, feature engineering, & EDA notebook
-└── README.md                        # Project documentation & findings
+
+    glassdoor-salary-analysis/
+    ├── data/
+    │   ├── glassdoor_jobs.csv           # Raw dataset (956 rows, 15 columns)
+    │   └── glassdoor_jobs_cleaned.csv   # Cleaned dataset (600 unique rows, 21 columns)
+    ├── notebooks/
+    │   └── tech_salary_analysis.ipynb   # Full cleaning, feature engineering, EDA, & visualizations
+    └── README.md                        # Project documentation & findings
